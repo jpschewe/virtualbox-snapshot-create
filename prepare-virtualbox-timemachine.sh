@@ -1,26 +1,37 @@
 #!/bin/sh
 
+debug() { ! "${log_debug-false}" || log "DEBUG: $*" >&2; }
+log() { printf '%s\n' "$*"; }
+warn() { log "WARNING: $*" >&2; }
+error() { log "ERROR: $*" >&2; }
+fatal() { error "$*"; exit 1; }
+try() { "$@" || fatal "'$@' failed"; }
+
+mydir=$(cd "$(dirname "$0")" && pwd -L) || fatal "Unable to determine script directory"
+
+cleanup() {
+    debug "In cleanup"
+}
+trap 'cleanup' INT TERM EXIT
+
 # Prepares virtualbox for time machine backups
 
 usage ()
 {
-  echo "usage: $0 [number of snapshots to keep]"
-  exit
+  fatal "usage: $0 [number of snapshots to keep]"
 }
 
 [ -n "$1" ] || usage
 
-echo "Preparing virtualbox for time machine backups"
-logger "Preparing virtualbox for time machine backups"
+log "Preparing virtualbox for time machine backups"
 
-snapshot-virtualbox.sh
-printf "\n\n"
+"${mydir}"/snapshot-virtualbox.sh
+log
 
-delete-old-snapshots.sh $1
-printf "\n\n"
+"${mydir}"/delete-old-snapshots.sh $1
+log
 
-#compact-virtualbox-vdis.sh
-#printf "\n\n"
+#"${mydir}"/compact-virtualbox-vdis.sh
+#log "\n\n"
 
-echo "Done preparing virtualbox for time machine backups"
-logger "Done preparing virtualbox for time machine backups"
+log "Done preparing virtualbox for time machine backups"

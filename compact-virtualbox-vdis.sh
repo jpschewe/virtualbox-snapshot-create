@@ -1,9 +1,21 @@
 #!/bin/sh
 
-echo "Compacting virtualbox vdi images"
-logger "Compacting virtualbox vdi images"
+debug() { ! "${log_debug-false}" || log "DEBUG: $*" >&2; }
+log() { printf '%s\n' "$*"; }
+warn() { log "WARNING: $*" >&2; }
+error() { log "ERROR: $*" >&2; }
+fatal() { error "$*"; exit 1; }
+try() { "$@" || fatal "'$@' failed"; }
 
-VBoxManage list hdds | grep "^UUID:" | awk -F " " '{print $2}' | xargs -L1 VBoxManage modifyhd --compact
+mydir=$(cd "$(dirname "$0")" && pwd -L) || fatal "Unable to determine script directory"
 
-echo "Done compacting virtualbox vdi images"
-logger "Done compacting virtualbox vdi images"
+cleanup() {
+    debug "In cleanup"
+}
+trap 'cleanup' INT TERM EXIT
+
+log "Compacting virtualbox vdi images"
+
+VBoxManage list hdds | grep -E "^UUID:" | awk -F " " '{print $2}' | xargs -L1 VBoxManage modifyhd --compact
+
+log "Done compacting virtualbox vdi images"
