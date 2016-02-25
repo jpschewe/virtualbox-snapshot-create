@@ -53,12 +53,13 @@ do
     if [ ${num_deleted} -lt ${num_to_delete} ]; then
       num_deleted=$(expr ${num_deleted} + 1)
       debug "Deleting ${snap}"
-      try VBoxManage snapshot ${vm} delete ${snap}
+      output=$(VBoxManage snapshot ${vm} delete ${snap} 2>&1) || fatal "Error deleting ${snap} from ${vm}"
+      debug ${output}
     else
       debug "Keeping ${snap}"
     fi
   done
 
-	log "Finished snapshot deletion of ${vm}"
-	log
+	debug "Finished snapshot deletion of ${vm}"
+	debug
 done
