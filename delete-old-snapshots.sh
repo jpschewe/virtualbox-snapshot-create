@@ -28,7 +28,7 @@ VM_IDS=$(VBoxManage list vms | awk -F '"' '{print $3}') || fatal "Cannot get lis
 
 for vm in ${VM_IDS}
 do
-	log "Deleting all but latest ${num_to_keep} automatic snapshots from ${vm}"
+	debug "Deleting all but latest ${num_to_keep} automatic snapshots from ${vm}"
 
   snapshots=$(VBoxManage snapshot "${vm}" list | \
     grep "_automatic" | \

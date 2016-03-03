@@ -25,7 +25,7 @@ do
 
 	COMMAND="VBoxManage snapshot ${vm} take ${FORMATTED_DATE} --live"
 	debug ${COMMAND}
-	output=${COMMAND 2>&1} || fatal "Error creating snapshot of ${vm}"
+	output=$( ${COMMAND} 2>&1) || fatal "Error creating snapshot of ${vm}"
         debug ${output}
 
 	debug "Created VirtualBox Snapshot ${FORMATTED_DATE} for VM ${vm}"
