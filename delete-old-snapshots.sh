@@ -18,7 +18,7 @@ trap 'cleanup' INT TERM EXIT
 
 usage ()
 {
-  fatal "usage: $0 [number of snapshots to keep]"
+    fatal "usage: $0 [number of snapshots to keep]"
 }
 
 [ -n "$1" ] || usage
@@ -28,38 +28,38 @@ VM_IDS=$(VBoxManage list vms | awk -F '"' '{print $3}') || fatal "Cannot get lis
 
 for vm in ${VM_IDS}
 do
-	debug "Deleting all but latest ${num_to_keep} automatic snapshots from ${vm}"
+    debug "Deleting all but latest ${num_to_keep} automatic snapshots from ${vm}"
 
-  snapshots=$(VBoxManage snapshot "${vm}" list | \
-    grep "_automatic" | \
-    awk -F "UUID: " '{print $2}' | \
-    awk -F ")" '{print $1}') || fatal "Cannot get list of snapshots for ${vm}"
+    snapshots=$(VBoxManage snapshot "${vm}" list | \
+                    grep "_automatic" | \
+                    awk -F "UUID: " '{print $2}' | \
+                    awk -F ")" '{print $1}') || fatal "Cannot get list of snapshots for ${vm}"
 
-  # count how many to delete since we want to delete them from the front of
-  # the list, but need to know how many to keep
-  num_to_delete=0
-  num_kept=0
-  for snap in ${snapshots}; do
-    if [ ${num_kept} -lt ${num_to_keep} ]; then
-      num_kept=$(expr ${num_kept} + 1)
-    else
-      num_to_delete=$(expr ${num_to_delete} + 1)
-    fi
-  done
+    # count how many to delete since we want to delete them from the front of
+    # the list, but need to know how many to keep
+    num_to_delete=0
+    num_kept=0
+    for snap in ${snapshots}; do
+        if [ ${num_kept} -lt ${num_to_keep} ]; then
+            num_kept=$(expr ${num_kept} + 1)
+        else
+            num_to_delete=$(expr ${num_to_delete} + 1)
+        fi
+    done
 
-  # actually delete snapshots
-  num_deleted=0
-  for snap in ${snapshots}; do
-    if [ ${num_deleted} -lt ${num_to_delete} ]; then
-      num_deleted=$(expr ${num_deleted} + 1)
-      debug "Deleting ${snap}"
-      output=$(VBoxManage snapshot ${vm} delete ${snap} 2>&1) || fatal "Error deleting ${snap} from ${vm}"
-      debug ${output}
-    else
-      debug "Keeping ${snap}"
-    fi
-  done
+    # actually delete snapshots
+    num_deleted=0
+    for snap in ${snapshots}; do
+        if [ ${num_deleted} -lt ${num_to_delete} ]; then
+            num_deleted=$(expr ${num_deleted} + 1)
+            debug "Deleting ${snap}"
+            output=$(VBoxManage snapshot ${vm} delete ${snap} 2>&1) || fatal "Error deleting ${snap} from ${vm}"
+            debug ${output}
+        else
+            debug "Keeping ${snap}"
+        fi
+    done
 
-	debug "Finished snapshot deletion of ${vm}"
-	debug
+    debug "Finished snapshot deletion of ${vm}"
+    debug
 done
