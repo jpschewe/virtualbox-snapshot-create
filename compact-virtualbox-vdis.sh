@@ -14,8 +14,12 @@ cleanup() {
 }
 trap 'cleanup' INT TERM EXIT
 
-log "Compacting virtualbox vdi images"
+debug "Compacting virtualbox vdi images"
 
-VBoxManage list hdds | grep -E "^UUID:" | awk -F " " '{print $2}' | xargs -L1 VBoxManage modifyhd --compact
+if [ "${log_debug}" != "false" ]; then 
+    VBoxManage list hdds | grep -E "^UUID:" | awk -F " " '{print $2}' | xargs -L1 VBoxManage modifyhd --compact > /dev/null
+else
+    VBoxManage list hdds | grep -E "^UUID:" | awk -F " " '{print $2}' | xargs -L1 VBoxManage modifyhd --compact
+fi
 
-log "Done compacting virtualbox vdi images"
+debug "Done compacting virtualbox vdi images"
